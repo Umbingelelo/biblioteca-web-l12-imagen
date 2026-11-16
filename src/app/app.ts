@@ -21,6 +21,10 @@ export class App {
 
   // La caja que mira la plantilla. Empieza en false: sin sesion, no eres nadie.
   protected readonly esBibliotecario = signal(false);
+  // Hay sesion si Amplify tiene un access token: el boton Entrar se esconde.
+  protected readonly conSesion = signal(false);
+  // El gateway, para el pie: '' en Azure (mismo origen), y entonces el pie no lo nombra.
+  protected readonly gateway = GATEWAY;
 
   readonly panel = signal<PrestamoConLibro[]>([]);
   readonly cargando = signal(false);
@@ -38,6 +42,7 @@ export class App {
   private async revisarGrupos() {
     const { tokens } = await fetchAuthSession();
     const grupos = (tokens?.accessToken?.payload['cognito:groups'] ?? []) as string[];
+    this.conSesion.set(!!tokens?.accessToken);
     this.esBibliotecario.set(grupos.includes('bibliotecarios'));
   }
 
